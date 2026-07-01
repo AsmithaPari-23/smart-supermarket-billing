@@ -15,8 +15,9 @@ export const SocketProvider = ({ children }) => {
   const [unregisteredBarcode, setUnregisteredBarcode] = useState(null);
 
   useEffect(() => {
-    // Connect to backend Socket.IO server (relying on vite proxy)
-    const newSocket = io(window.location.origin, {
+    // Connect to backend Socket.IO server (relying on vite proxy or environment variable in production)
+    const backendUrl = import.meta.env.VITE_API_URL || window.location.origin;
+    const newSocket = io(backendUrl, {
       autoConnect: true
     });
 

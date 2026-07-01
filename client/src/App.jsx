@@ -2,6 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import axios from 'axios';
+
+// Configure Axios defaults for production
+const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
+axios.defaults.baseURL = API_URL;
 
 // Layouts
 import DashboardLayout from './layouts/DashboardLayout';
