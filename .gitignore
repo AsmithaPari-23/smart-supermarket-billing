@@ -1,0 +1,11 @@
+node_modules/
+.env
+dist/
+build/
+.DS_Store
+*.log
+*.lnk
+.system_generated/
+*.webp
+*.png
+*.mp4

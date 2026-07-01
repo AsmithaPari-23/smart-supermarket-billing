@@ -1,0 +1,13 @@
+{
+  "name": "smart-supermarket-billing",
+  "version": "1.0.0",
+  "description": "Production-Ready Smart Supermarket Billing System",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

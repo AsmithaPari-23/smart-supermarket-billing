@@ -1,0 +1,10 @@
+{
+  "storeName": "Apex Supermarket",
+  "address": "123 Commercial Plaza, Tech City",
+  "phone": "+91 98765 43210",
+  "gstNumber": "29AAAAA1111A1Z1",
+  "receiptFooter": "Thank you for shopping with us!",
+  "currency": "INR",
+  "currencySymbol": "₹",
+  "taxRate": 18
+}
