@@ -39,6 +39,26 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
+// @desc    Get all active products for fallback search (public)
+// @route   GET /api/products/public/search
+// @access  Public
+router.get('/public/search', async (req, res) => {
+  try {
+    const { search } = req.query;
+    const query = { status: 'Active' };
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+    const products = await Product.find(query).limit(50).sort({ name: 1 });
+    res.json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // @desc    Get product by ID or Barcode
 // @route   GET /api/products/:idOrBarcode
 // @access  Private

@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "html5-qrcode": "^2.3.8"
   }
 }

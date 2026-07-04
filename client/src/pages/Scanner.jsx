@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import axios from 'axios';
 import { 
   Camera, 
   RotateCw, 
@@ -26,11 +27,19 @@ const Scanner = () => {
   const [scanStatus, setScanStatus] = useState('Initializing camera...');
   const [lastScanned, setLastScanned] = useState('');
   const [lastScannedProduct, setLastScannedProduct] = useState(null);
+  const [loadingCamera, setLoadingCamera] = useState(true);
 
-  const videoRef = useRef(null);
-  const codeReaderRef = useRef(null);
+  // Manual fallback search state
+  const [showFallback, setShowFallback] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [fallbackProducts, setFallbackProducts] = useState([]);
+  const [searching, setSearching] = useState(false);
 
-  // Play synthentic beep using Web Audio API
+  const html5QrCodeRef = useRef(null);
+  const isScanningRef = useRef(false);
+  const lastScannedRef = useRef({ code: '', time: 0 });
+
+  // Play synthetic beep using Web Audio API
   const playBeep = () => {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -53,9 +62,9 @@ const Scanner = () => {
   };
 
   // Trigger device haptic vibration
-  const triggerVibrate = () => {
+  const triggerVibrate = (duration = 100) => {
     if (navigator.vibrate) {
-      navigator.vibrate(120);
+      navigator.vibrate(duration);
     }
   };
 
@@ -72,14 +81,14 @@ const Scanner = () => {
       socket.on('scan-success', (data) => {
         setLastScannedProduct({ success: true, name: data.name });
         playBeep();
-        triggerVibrate();
+        triggerVibrate(100);
       });
 
       socket.on('scan-failed', (data) => {
         setLastScannedProduct({ success: false, name: data.message });
-        triggerVibrate();
+        triggerVibrate(100);
         // double vibration on error
-        setTimeout(() => triggerVibrate(), 200);
+        setTimeout(() => triggerVibrate(100), 200);
       });
     }
     return () => {
@@ -102,71 +111,148 @@ const Scanner = () => {
       });
   }, []);
 
-  // Store refs for values used inside the mediaStream callback to avoid restarting stream on value changes
+  // Store refs for values used inside the scanner callbacks to avoid resetting scanner
   const roomRef = useRef(room);
   useEffect(() => {
     roomRef.current = room;
   }, [room]);
 
-  const lastScannedRef = useRef(lastScanned);
+  // Setup 5-second timer for manual fallback search trigger
   useEffect(() => {
-    lastScannedRef.current = lastScanned;
-  }, [lastScanned]);
+    const timer = setTimeout(() => {
+      setShowFallback(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Initializing Camera & Scanner
+  // Fetch product list for fallback search when triggered or query changes
   useEffect(() => {
-    const codeReader = new BrowserMultiFormatReader();
-    codeReaderRef.current = codeReader;
-    let activeStream = null;
+    if (!showFallback) return;
+
+    let isCurrent = true;
+    const fetchFallbackProducts = async () => {
+      try {
+        setSearching(true);
+        const { data } = await axios.get(`/api/products/public/search?search=${searchQuery}`);
+        if (data.success && isCurrent) {
+          setFallbackProducts(data.products);
+        }
+      } catch (err) {
+        console.error("Failed to load products for manual search:", err);
+      } finally {
+        if (isCurrent) setSearching(false);
+      }
+    };
+
+    const delayDebounce = setTimeout(() => {
+      fetchFallbackProducts();
+    }, 300);
+
+    return () => {
+      isCurrent = false;
+      clearTimeout(delayDebounce);
+    };
+  }, [showFallback, searchQuery]);
+
+  // Initializing Camera & html5-qrcode
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingCamera(true);
+    setScanStatus('Initializing camera...');
+
+    const scannerContainer = document.getElementById("scanner-reader");
+    if (!scannerContainer) {
+      setScanStatus('Scanner target element missing.');
+      setLoadingCamera(false);
+      return;
+    }
+
+    const codeReader = new Html5Qrcode("scanner-reader");
+    html5QrCodeRef.current = codeReader;
 
     const startCamera = async () => {
       try {
-        setScanStatus('Requesting camera permission...');
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facingMode }
-        });
-        activeStream = stream;
-        setHasCamera(true);
-        setScanStatus('Ready to scan. Point camera at barcode.');
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-
-        // Start decoding from stream
-        codeReader.decodeFromStream(stream, videoRef.current, (result, err) => {
-          if (result) {
-            const barcode = result.getText();
-            if (barcode && barcode !== lastScannedRef.current) {
-              setLastScanned(barcode);
-              // Send to dashboard via Socket
-              sendBarcode(barcode, roomRef.current);
-              
-              // Temporary scan status transition
-              setScanStatus(`Scanned code: ${barcode}`);
-              setTimeout(() => {
-                setLastScanned('');
-                setScanStatus('Ready to scan. Point camera at barcode.');
-              }, 2500);
+        await codeReader.start(
+          { facingMode: facingMode },
+          {
+            fps: 10,
+            qrbox: { width: 300, height: 300 },
+            rememberLastUsedCamera: true,
+            aspectRatio: 1.777,
+            disableFlip: false,
+            formatsToSupport: [
+              Html5QrcodeSupportedFormats.EAN_13,
+              Html5QrcodeSupportedFormats.EAN_8,
+              Html5QrcodeSupportedFormats.UPC_A,
+              Html5QrcodeSupportedFormats.UPC_E,
+              Html5QrcodeSupportedFormats.CODE_128,
+              Html5QrcodeSupportedFormats.CODE_39,
+              Html5QrcodeSupportedFormats.CODE_93,
+              Html5QrcodeSupportedFormats.ITF,
+              Html5QrcodeSupportedFormats.CODABAR,
+            ]
+          },
+          (decodedText, decodedResult) => {
+            if (isMounted) {
+              const now = Date.now();
+              if (decodedText && (decodedText !== lastScannedRef.current.code || (now - lastScannedRef.current.time) > 2000)) {
+                lastScannedRef.current = { code: decodedText, time: now };
+                setLastScanned(decodedText);
+                
+                // Send to dashboard via Socket
+                sendBarcode(decodedText, roomRef.current);
+                
+                // Temporary scan status transition
+                setScanStatus(`Scanned code: ${decodedText}`);
+                setTimeout(() => {
+                  if (isMounted) {
+                    setLastScanned('');
+                    setScanStatus('Ready to scan. Point camera at barcode.');
+                  }
+                }, 2500);
+              }
             }
+          },
+          (errorMessage) => {
+            // Ignored to prevent performance drop on high frame rate
           }
-        });
+        );
 
+        if (isMounted) {
+          setHasCamera(true);
+          setLoadingCamera(false);
+          setScanStatus('Ready to scan. Point camera at barcode.');
+          isScanningRef.current = true;
+        }
       } catch (err) {
         console.error("Camera error:", err);
-        setHasCamera(false);
-        setScanStatus(`Camera error: ${err.message || err}`);
+        if (isMounted) {
+          setHasCamera(false);
+          setLoadingCamera(false);
+          if (err.toString().includes("NotAllowedError") || err.toString().includes("Permission denied")) {
+            setScanStatus("Camera permission denied. Please grant permission in browser settings.");
+          } else if (err.toString().includes("NotFoundError") || err.toString().includes("Requested device not found")) {
+            setScanStatus("Camera unavailable or not found.");
+          } else {
+            setScanStatus(`Camera error: ${err.message || err}`);
+          }
+        }
       }
     };
 
     startCamera();
 
     return () => {
+      isMounted = false;
       if (codeReader) {
-        codeReader.reset();
-      }
-      if (activeStream) {
-        activeStream.getTracks().forEach(track => track.stop());
+        if (isScanningRef.current) {
+          isScanningRef.current = false;
+          codeReader.stop().then(() => {
+            console.log("Scanner stopped.");
+          }).catch(err => {
+            console.error("Error stopping scanner on cleanup:", err);
+          });
+        }
       }
     };
   }, [facingMode, sendBarcode]);
@@ -179,19 +265,31 @@ const Scanner = () => {
   // Toggle Torch Flashlight
   const toggleTorch = async () => {
     try {
-      const stream = videoRef.current.srcObject;
-      if (stream) {
-        const track = stream.getVideoTracks()[0];
-        const capabilities = track.getCapabilities();
-        
-        if (capabilities.torch) {
-          const newTorch = !torchEnabled;
-          await track.applyConstraints({
-            advanced: [{ torch: newTorch }]
-          });
-          setTorchEnabled(newTorch);
+      if (html5QrCodeRef.current && isScanningRef.current) {
+        const capabilities = html5QrCodeRef.current.getRunningTrackCameraCapabilities();
+        const torch = capabilities.torchFeature();
+        if (torch && torch.isSupported()) {
+          const nextVal = !torchEnabled;
+          await torch.apply(nextVal);
+          setTorchEnabled(nextVal);
         } else {
-          alert('Torch flashlight is not supported on this device/camera.');
+          // Fallback to standard track constraint
+          const stream = document.querySelector("#scanner-reader video")?.srcObject;
+          if (stream) {
+            const track = stream.getVideoTracks()[0];
+            const trackCaps = track.getCapabilities();
+            if (trackCaps.torch) {
+              const nextVal = !torchEnabled;
+              await track.applyConstraints({
+                advanced: [{ torch: nextVal }]
+              });
+              setTorchEnabled(nextVal);
+            } else {
+              alert('Torch flashlight is not supported on this device/camera.');
+            }
+          } else {
+            alert('Torch flashlight is not supported on this device/camera.');
+          }
         }
       }
     } catch (err) {
@@ -199,8 +297,33 @@ const Scanner = () => {
     }
   };
 
+  const handleProductSelect = (product) => {
+    // Send manually selected product barcode
+    sendBarcode(product.barcode, room);
+    setScanStatus(`Selected manually: ${product.name}`);
+    setTimeout(() => {
+      setScanStatus('Ready to scan. Point camera at barcode.');
+    }, 2500);
+  };
+
   return (
     <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-between p-4 select-none relative overflow-hidden">
+      {/* Dynamic styling override for html5-qrcode video element to fit container */}
+      <style>{`
+        #scanner-reader {
+          width: 100% !important;
+          height: 100% !important;
+          position: absolute !important;
+          top: 0;
+          left: 0;
+        }
+        #scanner-reader video {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+        }
+      `}</style>
+
       {/* Top Details & Socket Link */}
       <header className="flex justify-between items-center bg-black/40 border border-white/10 p-4 rounded-2xl backdrop-blur-md">
         <div>
@@ -221,25 +344,26 @@ const Scanner = () => {
       </header>
 
       {/* Video Scanning Container */}
-      <div className="relative flex-1 my-4 bg-black rounded-3xl border border-white/10 overflow-hidden flex items-center justify-center">
-        <video 
-          ref={videoRef} 
-          className={`absolute inset-0 w-full h-full object-cover ${hasCamera ? 'block' : 'hidden'}`} 
-          playsInline
-          autoPlay
-          muted
-        />
+      <div className="relative flex-1 min-h-[220px] my-4 bg-black rounded-3xl border border-white/10 overflow-hidden flex items-center justify-center">
+        <div id="scanner-reader" />
         
-        {!hasCamera && (
-          <div className="text-center p-6 space-y-2">
+        {loadingCamera && (
+          <div className="absolute z-10 text-center p-6 space-y-2">
+            <div className="mx-auto h-8 w-8 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm font-semibold">Initializing camera...</p>
+          </div>
+        )}
+
+        {!hasCamera && !loadingCamera && (
+          <div className="absolute z-10 text-center p-6 space-y-2">
             <Camera size={48} className="mx-auto text-gray-500 stroke-[1.5]" />
             <p className="text-sm font-semibold px-4">{scanStatus}</p>
           </div>
         )}
 
         {/* Scan Reticle Guides */}
-        {hasCamera && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {hasCamera && !loadingCamera && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
             <div className="w-64 h-36 border-2 border-accent-primary/60 rounded-xl relative shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
               {/* Laser line effect */}
               <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-red-500 shadow-md shadow-red-500/80 animate-bounce"></div>
@@ -247,6 +371,51 @@ const Scanner = () => {
           </div>
         )}
       </div>
+
+      {/* Manual Fallback Search Box & List */}
+      {showFallback && (
+        <div className="bg-black/60 border border-white/10 rounded-2xl p-4 flex flex-col gap-3 max-h-56 overflow-hidden mb-4 backdrop-blur-md">
+          <div className="flex justify-between items-center border-b border-white/10 pb-2">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-accent-primary flex items-center gap-1.5">
+              Manual Fallback Search
+            </h3>
+            <span className="text-[9px] text-gray-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+              No barcode scan detected
+            </span>
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search product by name..."
+              className="w-full pl-3 pr-8 py-2 rounded-xl border border-white/10 bg-white/5 focus:bg-white/10 focus:border-accent-primary outline-none transition text-xs font-semibold"
+            />
+            {searching && (
+              <div className="absolute right-3 top-2.5 h-4 w-4 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+            )}
+          </div>
+          <div className="flex-1 overflow-y-auto divide-y divide-white/5 max-h-32 custom-scrollbar">
+            {fallbackProducts.length > 0 ? (
+              fallbackProducts.map((product) => (
+                <div
+                  key={product._id}
+                  onClick={() => handleProductSelect(product)}
+                  className="py-2 px-2 hover:bg-white/5 text-xs font-medium flex justify-between items-center cursor-pointer active:bg-white/10 rounded-lg transition"
+                >
+                  <div>
+                    <p className="text-white font-semibold">{product.name}</p>
+                    <p className="text-[10px] text-gray-400 font-mono">Barcode: {product.barcode}</p>
+                  </div>
+                  <span className="text-accent-primary font-bold">₹{product.sellingPrice.toFixed(2)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-xs text-gray-500 py-3">No products found</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Scanned product status box */}
       <footer className="space-y-4">
