@@ -1,4 +1,4 @@
-# Apex Billing System
+# Apex Smart Supermarket Billing System
 
 A modern **Smart Supermarket Billing System** built using the **MERN Stack**, where a **mobile browser acts as a real-time barcode scanner** and a **desktop browser serves as the billing dashboard**. The application enables fast billing, inventory management, customer insights, and real-time synchronization without requiring a mobile app.
 
