@@ -9,3 +9,4 @@ build/
 *.webp
 *.png
 *.mp4
+*.timestamp-*.mjs

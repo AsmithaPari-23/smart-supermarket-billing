@@ -7,7 +7,9 @@ import {
   Download, 
   Upload, 
   Check, 
-  AlertCircle 
+  AlertCircle,
+  Sliders,
+  ShieldAlert
 } from 'lucide-react';
 
 const Settings = () => {
@@ -130,85 +132,86 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="h-8 w-8 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="h-full min-h-[400px] flex flex-col items-center justify-center gap-3">
+        <div className="h-9 w-9 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs font-semibold text-brand-muted">Loading Store Configurations...</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 select-none">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 select-none pb-6">
       {/* Left side Store Configuration */}
-      <div className="lg:col-span-2 glass-card p-5 rounded-3xl border border-glass-border">
-        <div className="flex items-center gap-2 text-sm font-bold font-heading text-text-primary mb-5 border-b border-glass-border pb-3">
-          <SettingsIcon size={18} className="text-accent-primary animate-spin" style={{ animationDuration: '6s' }} />
-          Store Metadata Settings
+      <div className="lg:col-span-2 glass-card p-6 rounded-[20px] border border-brand-border">
+        <div className="flex items-center gap-2 text-sm font-bold text-brand-dark mb-5 border-b border-brand-border pb-3">
+          <Sliders size={18} className="text-brand-primary" />
+          Supermarket Store Metadata & Invoice Settings
         </div>
 
-        {message && <div className="p-3 mb-4 bg-green-500/10 border border-green-500/20 text-accent-success text-xs font-semibold rounded-lg text-center flex items-center justify-center gap-1.5"><Check size={16} />{message}</div>}
-        {error && <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-accent-danger text-xs font-semibold rounded-lg text-center flex items-center justify-center gap-1.5"><AlertCircle size={16} />{error}</div>}
+        {message && <div className="p-3.5 mb-4 bg-brand-success/10 border border-brand-success/20 text-brand-success text-xs font-bold rounded-xl text-center flex items-center justify-center gap-1.5"><Check size={16} />{message}</div>}
+        {error && <div className="p-3.5 mb-4 bg-brand-danger/10 border border-brand-danger/20 text-brand-danger text-xs font-bold rounded-xl text-center flex items-center justify-center gap-1.5"><AlertCircle size={16} />{error}</div>}
 
         <form onSubmit={handleSettingsSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">Store Name *</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Supermarket Store Name *</label>
               <input
                 type="text"
                 required
                 value={formData.storeName}
                 onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-bold text-brand-dark outline-none focus:border-brand-primary"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">Contact Phone *</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Contact Phone *</label>
               <input
                 type="text"
                 required
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-bold text-brand-dark outline-none focus:border-brand-primary"
               />
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">Store Address *</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Supermarket Outlet Address *</label>
               <input
                 type="text"
                 required
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">GSTIN / Tax Number</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">GSTIN / Tax Registration No</label>
               <input
                 type="text"
                 value={formData.gstNumber}
                 onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary font-mono"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">Receipt Footer Note</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">POS Receipt Footer Note</label>
               <input
                 type="text"
                 value={formData.receiptFooter}
                 onChange={(e) => setFormData({ ...formData, receiptFooter: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">Default Currency</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Default Currency</label>
               <select
                 value={formData.currency}
                 onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-bold text-brand-dark outline-none focus:border-brand-primary"
               >
                 <option value="USD">USD ($)</option>
                 <option value="INR">INR (₹)</option>
@@ -218,73 +221,77 @@ const Settings = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase">Default Tax Rate (GST %)</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Default Tax Rate (GST %)</label>
               <input
                 type="number"
                 value={formData.taxRate}
                 onChange={(e) => setFormData({ ...formData, taxRate: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3.5 py-2 border border-brand-border rounded-xl bg-white text-xs font-bold text-brand-dark outline-none focus:border-brand-primary"
               />
             </div>
           </div>
 
           {isAdmin && (
-            <button
-              type="submit"
-              className="bg-accent-primary hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition"
-            >
-              Save Store Config
-            </button>
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="glass-btn-primary py-2.5 px-6 text-xs font-bold transition flex items-center justify-center gap-2"
+              >
+                Save Store Configuration
+              </button>
+            </div>
           )}
         </form>
       </div>
 
       {/* Right side Backup/Restore database */}
-      <div className="glass-card p-5 rounded-3xl border border-glass-border space-y-6">
-        <div className="flex items-center gap-2 text-sm font-bold font-heading text-text-primary border-b border-glass-border pb-3">
-          <Database size={18} className="text-text-secondary" />
-          ERP Maintenance
+      <div className="glass-card p-6 rounded-[20px] border border-brand-border space-y-6">
+        <div className="flex items-center gap-2 text-sm font-bold text-brand-dark border-b border-brand-border pb-3">
+          <Database size={18} className="text-brand-primary" />
+          System Maintenance & Backups
         </div>
 
         {/* Database Backup */}
-        <div className="space-y-3 bg-white/35 border border-glass-border p-4 rounded-2xl">
-          <h4 className="text-xs font-bold text-text-primary">Database Backup</h4>
-          <p className="text-[10px] text-text-secondary leading-relaxed">
-            Download a full snapshot backup file containing all products, CRM profiles, cashiers, and checkout invoice logs.
+        <div className="space-y-3 bg-brand-bg/80 border border-brand-border p-4 rounded-2xl">
+          <h4 className="text-xs font-bold text-brand-dark flex items-center gap-2">
+            <Download size={14} className="text-brand-primary" /> Database Backup JSON
+          </h4>
+          <p className="text-[11px] text-brand-muted leading-relaxed">
+            Download a full snapshot backup file containing products, CRM profiles, cashiers, and checkout invoice logs.
           </p>
           <button
             onClick={handleBackup}
-            className="w-full bg-accent-primary hover:bg-blue-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition"
+            className="w-full glass-btn-primary py-2.5 text-xs font-bold flex items-center justify-center gap-2"
           >
             <Download size={14} />
-            Download JSON Backup
+            Export Database Backup
           </button>
         </div>
 
         {/* Database Restore */}
         {isAdmin && (
-          <div className="space-y-3 bg-red-500/5 border border-red-500/10 p-4 rounded-2xl">
-            <h4 className="text-xs font-bold text-accent-danger flex items-center gap-1">
-              <AlertCircle size={14} />
-              Restore Database
+          <div className="space-y-3 bg-brand-danger/5 border border-brand-danger/20 p-4 rounded-2xl">
+            <h4 className="text-xs font-bold text-brand-danger flex items-center gap-1.5">
+              <ShieldAlert size={16} />
+              Restore Database Snapshot
             </h4>
-            <p className="text-[10px] text-text-secondary leading-relaxed">
-              Upload a previously downloaded JSON backup file. This will restore the database to that snapshot.
+            <p className="text-[11px] text-brand-muted leading-relaxed">
+              Upload a JSON backup file. This will restore the database to that snapshot state.
             </p>
 
-            {restoreMessage && <div className="p-2.5 bg-green-500/10 border border-green-500/20 text-accent-success text-[10px] font-semibold rounded-lg text-center">{restoreMessage}</div>}
-            {restoreError && <div className="p-2.5 bg-red-500/10 border border-red-500/20 text-accent-danger text-[10px] font-semibold rounded-lg text-center">{restoreError}</div>}
+            {restoreMessage && <div className="p-2.5 bg-brand-success/10 border border-brand-success/20 text-brand-success text-[10px] font-bold rounded-xl text-center">{restoreMessage}</div>}
+            {restoreError && <div className="p-2.5 bg-brand-danger/10 border border-brand-danger/20 text-brand-danger text-[10px] font-bold rounded-xl text-center">{restoreError}</div>}
 
-            <form onSubmit={handleRestoreSubmit} className="space-y-2.5">
+            <form onSubmit={handleRestoreSubmit} className="space-y-3">
               <input
                 type="file"
                 accept=".json"
                 onChange={(e) => setRestoreFile(e.target.files[0])}
-                className="w-full border border-glass-border bg-white rounded-lg p-1.5 text-[10px] font-semibold"
+                className="w-full border border-brand-border bg-white rounded-xl p-2 text-[11px] font-semibold text-brand-dark"
               />
               <button
                 type="submit"
-                className="w-full bg-accent-danger hover:bg-red-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition"
+                className="w-full bg-brand-danger hover:bg-brand-danger/90 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-sm"
               >
                 <Upload size={14} />
                 Restore Snapshot

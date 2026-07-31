@@ -7,36 +7,59 @@ export default {
   theme: {
     extend: {
       colors: {
+        brand: {
+          bg: "#F8F6F1",
+          card: "#FFFFFF",
+          primary: "#1F8A5B",
+          secondary: "#2EA66D",
+          gold: "#FFC857",
+          success: "#22C55E",
+          warning: "#F59E0B",
+          danger: "#EF4444",
+          error: "#EF4444",
+          dark: "#1E293B",
+          muted: "#64748B",
+          border: "#E5E7EB",
+        },
         background: {
-          primary: "#EEF2F7",
-          secondary: "#F8FAFC",
+          primary: "#F8F6F1",
+          secondary: "#FFFFFF",
         },
         glass: {
-          card: "rgba(255, 255, 255, 0.18)",
-          border: "rgba(255, 255, 255, 0.35)",
-          hover: "rgba(255, 255, 255, 0.28)",
+          card: "rgba(255, 255, 255, 0.85)",
+          border: "#E5E7EB",
+          hover: "rgba(31, 138, 91, 0.06)",
         },
         accent: {
-          primary: "#2563EB",
-          success: "#16A34A",
+          primary: "#1F8A5B",
+          secondary: "#2EA66D",
+          success: "#22C55E",
           warning: "#F59E0B",
-          danger: "#DC2626",
+          danger: "#EF4444",
+          gold: "#FFC857",
         },
         text: {
-          primary: "#1F2937",
-          secondary: "#6B7280",
+          primary: "#1E293B",
+          secondary: "#64748B",
         }
       },
       fontFamily: {
-        sans: ["Poppins", "Arial", "sans-serif"],
-        heading: ["Montserrat", "Arial", "sans-serif"],
+        sans: ["Poppins", "system-ui", "sans-serif"],
+        heading: ["Poppins", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        '2xl': '20px',
+        '3xl': '24px',
       },
       boxShadow: {
-        glass: "0 8px 32px 0 rgba(31, 38, 135, 0.07)",
-        glassHover: "0 8px 32px 0 rgba(31, 38, 135, 0.12)",
+        glass: "0 10px 30px -5px rgba(31, 138, 91, 0.04), 0 4px 12px 0 rgba(0, 0, 0, 0.02)",
+        glassHover: "0 14px 35px -5px rgba(31, 138, 91, 0.1), 0 6px 16px 0 rgba(0, 0, 0, 0.03)",
+        card: "0 4px 20px 0 rgba(30, 41, 59, 0.03)",
+        primary: "0 8px 20px -4px rgba(31, 138, 91, 0.25)",
+        gold: "0 8px 20px -4px rgba(255, 200, 87, 0.35)",
       },
       backdropBlur: {
-        glass: "12px",
+        glass: "16px",
       }
     },
   },

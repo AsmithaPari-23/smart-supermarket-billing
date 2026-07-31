@@ -6,7 +6,11 @@ import {
   History, 
   ArrowUpRight, 
   ArrowDownRight, 
-  ClipboardList 
+  ClipboardList,
+  Package,
+  Layers,
+  Clock,
+  CheckCircle2
 } from 'lucide-react';
 
 const Inventory = () => {
@@ -79,8 +83,9 @@ const Inventory = () => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="h-8 w-8 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="h-full min-h-[400px] flex flex-col items-center justify-center gap-3">
+        <div className="h-9 w-9 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs font-semibold text-brand-muted">Loading Inventory Logs & Alerts...</p>
       </div>
     );
   }
@@ -90,60 +95,60 @@ const Inventory = () => {
   const expiringItems = overview?.expiringItems || [];
 
   return (
-    <div className="space-y-6 select-none">
+    <div className="space-y-6 select-none pb-6">
       {/* Overview Stat Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card p-5 rounded-2xl border border-glass-border flex items-center gap-4">
-          <div className={`p-3 rounded-xl ${stats.lowStockCount > 0 ? 'bg-red-500/10 text-accent-danger animate-pulse' : 'bg-green-500/10 text-accent-success'}`}>
-            <AlertTriangle size={20} />
+        <div className="glass-card p-5 rounded-[20px] border border-brand-border flex items-center gap-4 hover:shadow-glassHover transition">
+          <div className={`p-3.5 rounded-2xl ${stats.lowStockCount > 0 ? 'bg-brand-danger/15 text-brand-danger animate-pulse border border-brand-danger/30' : 'bg-brand-success/15 text-brand-success'}`}>
+            <AlertTriangle size={24} className="stroke-[2.2]" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-text-secondary uppercase">Low Stock Indicators</p>
-            <h3 className="text-xl font-bold text-text-primary mt-0.5">{stats.lowStockCount} Products</h3>
+            <p className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Low Stock Indicators</p>
+            <h3 className="text-2xl font-extrabold text-brand-dark mt-0.5">{stats.lowStockCount} Products</h3>
           </div>
         </div>
 
-        <div className="glass-card p-5 rounded-2xl border border-glass-border flex items-center gap-4">
-          <div className="bg-amber-500/10 text-accent-warning p-3 rounded-xl">
-            <AlertTriangle size={20} />
+        <div className="glass-card p-5 rounded-[20px] border border-brand-border flex items-center gap-4 hover:shadow-glassHover transition">
+          <div className="bg-brand-gold/20 text-brand-dark p-3.5 rounded-2xl border border-brand-gold/40">
+            <Clock size={24} className="stroke-[2.2]" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-text-secondary uppercase">Expiring in 30 days</p>
-            <h3 className="text-xl font-bold text-text-primary mt-0.5">{stats.expiringItemsCount} Products</h3>
+            <p className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Expiring in 30 days</p>
+            <h3 className="text-2xl font-extrabold text-brand-dark mt-0.5">{stats.expiringItemsCount} Products</h3>
           </div>
         </div>
 
-        <div className="glass-card p-5 rounded-2xl border border-glass-border flex items-center gap-4">
-          <div className={`p-3 rounded-xl ${stats.outOfStockCount > 0 ? 'bg-red-500/10 text-accent-danger' : 'bg-green-500/10 text-accent-success'}`}>
-            <AlertTriangle size={20} />
+        <div className="glass-card p-5 rounded-[20px] border border-brand-border flex items-center gap-4 hover:shadow-glassHover transition">
+          <div className={`p-3.5 rounded-2xl ${stats.outOfStockCount > 0 ? 'bg-brand-danger/15 text-brand-danger border border-brand-danger/30' : 'bg-brand-success/15 text-brand-success'}`}>
+            <Package size={24} className="stroke-[2.2]" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-text-secondary uppercase">Out of Stock</p>
-            <h3 className="text-xl font-bold text-text-primary mt-0.5">{stats.outOfStockCount} Products</h3>
+            <p className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Out of Stock</p>
+            <h3 className="text-2xl font-extrabold text-brand-dark mt-0.5">{stats.outOfStockCount} Products</h3>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Side: Restock Stock Form */}
-        <div className="glass-card p-5 rounded-3xl border border-glass-border h-fit">
-          <div className="flex items-center gap-2 text-sm font-bold font-heading text-text-primary mb-4">
-            <PlusCircle size={18} className="text-accent-primary" />
+        <div className="glass-card p-5 rounded-[20px] border border-brand-border h-fit">
+          <div className="flex items-center gap-2 text-sm font-bold text-brand-dark mb-4 border-b border-brand-border pb-3">
+            <PlusCircle size={18} className="text-brand-primary" />
             Stock Adjustments Form
           </div>
 
           <form onSubmit={handleAdjustSubmit} className="space-y-4">
-            {formError && <div className="p-3 bg-red-500/10 border border-red-500/20 text-accent-danger text-xs font-semibold rounded-lg text-center">{formError}</div>}
+            {formError && <div className="p-3 bg-brand-danger/10 border border-brand-danger/20 text-brand-danger text-xs font-bold rounded-xl text-center">{formError}</div>}
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase block">Select Product *</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Select Product *</label>
               <select
                 required
                 value={adjustForm.productId}
                 onChange={(e) => setAdjustForm({ ...adjustForm, productId: e.target.value })}
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                className="w-full px-3 py-2 border border-brand-border rounded-xl bg-white text-xs font-bold text-brand-dark outline-none focus:border-brand-primary"
               >
-                <option value="">Choose Catalog item</option>
+                <option value="">Choose Catalog Item</option>
                 {products.map(p => (
                   <option key={p._id} value={p._id}>{p.name} (BC: {p.barcode} | Stock: {p.stock})</option>
                 ))}
@@ -152,11 +157,11 @@ const Inventory = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-text-secondary uppercase block">Adjust Type *</label>
+                <label className="text-[10px] font-bold text-brand-muted uppercase block">Adjust Type *</label>
                 <select
                   value={adjustForm.type}
                   onChange={(e) => setAdjustForm({ ...adjustForm, type: e.target.value })}
-                  className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                  className="w-full px-3 py-2 border border-brand-border rounded-xl bg-white text-xs font-bold text-brand-dark outline-none focus:border-brand-primary"
                 >
                   <option value="Restock">Restock (+)</option>
                   <option value="Damage">Damage (-)</option>
@@ -165,91 +170,91 @@ const Inventory = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-text-secondary uppercase block">Quantity *</label>
+                <label className="text-[10px] font-bold text-brand-muted uppercase block">Quantity *</label>
                 <input
                   type="number"
                   required
                   value={adjustForm.quantity}
                   onChange={(e) => setAdjustForm({ ...adjustForm, quantity: Number(e.target.value) })}
-                  className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                  className="w-full px-3 py-2 border border-brand-border rounded-xl bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-text-secondary uppercase block">Adjustment Reason / Notes</label>
+              <label className="text-[10px] font-bold text-brand-muted uppercase block">Adjustment Notes</label>
               <input
                 type="text"
                 value={adjustForm.reason}
                 onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })}
-                placeholder="Details of adjustment..."
-                className="w-full px-3 py-2 border border-glass-border rounded-xl bg-white/40 text-xs font-semibold outline-none focus:bg-white"
+                placeholder="Shipment batch, damage details..."
+                className="w-full px-3 py-2 border border-brand-border rounded-xl bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-accent-primary hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs transition"
+              className="w-full glass-btn-primary py-2.5 text-xs font-bold transition flex items-center justify-center gap-2"
             >
-              Post Adjustment
+              Post Stock Adjustment
             </button>
           </form>
         </div>
 
         {/* Right Side: Stock Transaction Log */}
-        <div className="xl:col-span-2 glass-card p-5 rounded-3xl border border-glass-border flex flex-col h-[400px]">
-          <div className="flex items-center gap-2 text-sm font-bold font-heading text-text-primary mb-4">
-            <History size={18} className="text-text-secondary" />
-            Stock transaction ledger
+        <div className="xl:col-span-2 glass-card p-5 rounded-[20px] border border-brand-border flex flex-col h-[400px]">
+          <div className="flex items-center gap-2 text-sm font-bold text-brand-dark mb-4 border-b border-brand-border pb-3">
+            <History size={18} className="text-brand-primary" />
+            Supermarket Stock Transaction Ledger
           </div>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-glass-border text-xs font-bold text-text-secondary uppercase tracking-wider">
-                  <th className="pb-3">Product</th>
+                <tr className="border-b border-brand-border text-[11px] font-bold text-brand-muted uppercase tracking-wider">
+                  <th className="pb-3">Product Name</th>
                   <th className="pb-3 text-center">Type</th>
                   <th className="pb-3 text-center">Qty</th>
                   <th className="pb-3">Performed By</th>
-                  <th className="pb-3 text-right">Date</th>
+                  <th className="pb-3 text-right">Timestamp</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-glass-border text-xs font-medium text-text-secondary">
+              <tbody className="divide-y divide-brand-border/60 text-xs font-medium text-brand-muted">
                 {logs.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-20 text-center">No inventory adjustments logged yet.</td>
+                    <td colSpan="5" className="py-20 text-center text-brand-muted">No inventory adjustments logged yet.</td>
                   </tr>
                 ) : (
                   logs.map((log) => {
                     const isPositive = log.quantity > 0;
                     return (
-                      <tr key={log._id} className="hover:bg-white/10 transition-colors">
+                      <tr key={log._id} className="hover:bg-brand-primary/5 transition-colors">
                         <td className="py-3">
-                          <p className="text-text-primary font-bold">{log.productId?.name || 'Unknown item'}</p>
-                          <p className="text-[9px] text-text-secondary mt-0.5">BC: {log.productId?.barcode}</p>
+                          <p className="text-brand-dark font-bold">{log.productId?.name || 'Unknown item'}</p>
+                          <p className="text-[10px] text-brand-muted font-mono mt-0.5">BC: {log.productId?.barcode}</p>
                         </td>
                         <td className="py-3 text-center">
-                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                          <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
                             log.type === 'Restock' 
-                              ? 'bg-green-500/10 text-accent-success' 
+                              ? 'bg-brand-success/15 text-brand-success' 
                               : log.type === 'Sale'
-                              ? 'bg-blue-500/10 text-accent-primary'
-                              : 'bg-red-500/10 text-accent-danger'
+                              ? 'bg-brand-primary/10 text-brand-primary'
+                              : 'bg-brand-danger/15 text-brand-danger'
                           }`}>
                             {log.type}
                           </span>
                         </td>
                         <td className="py-3 text-center">
-                          <span className={`flex items-center justify-center gap-0.5 font-bold ${isPositive ? 'text-accent-success' : 'text-accent-danger'}`}>
-                            {isPositive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                          <span className={`flex items-center justify-center gap-0.5 font-bold ${isPositive ? 'text-brand-success' : 'text-brand-danger'}`}>
+                            {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                             {Math.abs(log.quantity)}
                           </span>
                         </td>
                         <td className="py-3">
-                          <p className="text-text-primary">{log.performedBy?.name}</p>
-                          <p className="text-[9px] text-text-secondary mt-0.5">{log.performedBy?.role}</p>
+                          <p className="text-brand-dark font-semibold">{log.performedBy?.name}</p>
+                          <p className="text-[10px] text-brand-muted">{log.performedBy?.role}</p>
                         </td>
-                        <td className="py-3 text-right">{new Date(log.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 text-right text-brand-muted">{new Date(log.createdAt).toLocaleDateString()}</td>
                       </tr>
                     );
                   })
@@ -263,21 +268,23 @@ const Inventory = () => {
       {/* Warning panels: items requiring immediate action */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Low Stock Catalogue warnings */}
-        <div className="glass-card p-5 rounded-3xl border border-glass-border">
-          <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Low Stock Warning Checklist</h3>
-          <div className="space-y-3.5">
+        <div className="glass-card p-5 rounded-[20px] border border-brand-border">
+          <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-4 flex items-center gap-2">
+            <AlertTriangle size={16} className="text-brand-danger" /> Low Stock Warning Checklist
+          </h3>
+          <div className="space-y-3">
             {lowStockItems.length === 0 ? (
-              <p className="text-xs text-text-secondary font-medium">All active products have adequate stock levels.</p>
+              <p className="text-xs text-brand-muted font-medium">All active products have adequate stock levels.</p>
             ) : (
               lowStockItems.map(item => (
-                <div key={item._id} className="flex justify-between items-center bg-white/40 border border-glass-border p-3 rounded-xl">
+                <div key={item._id} className="flex justify-between items-center bg-brand-bg/80 border border-brand-border p-3.5 rounded-2xl">
                   <div>
-                    <h4 className="text-xs font-bold text-text-primary">{item.name}</h4>
-                    <p className="text-[9px] text-text-secondary mt-0.5">Category: {item.category} | EAN: {item.barcode}</p>
+                    <h4 className="text-xs font-bold text-brand-dark">{item.name}</h4>
+                    <p className="text-[10px] text-brand-muted mt-0.5">Category: {item.category} | EAN: {item.barcode}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-bold text-accent-danger bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
-                      Stock: {item.stock}
+                    <span className="text-xs font-bold text-brand-danger bg-brand-danger/15 px-3 py-1 rounded-full border border-brand-danger/30">
+                      Stock: {item.stock} units
                     </span>
                   </div>
                 </div>
@@ -287,25 +294,27 @@ const Inventory = () => {
         </div>
 
         {/* Expiry alerts warnings */}
-        <div className="glass-card p-5 rounded-3xl border border-glass-border">
-          <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Upcoming Product Expirations</h3>
-          <div className="space-y-3.5">
+        <div className="glass-card p-5 rounded-[20px] border border-brand-border">
+          <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Clock size={16} className="text-brand-warning" /> Upcoming Product Expirations
+          </h3>
+          <div className="space-y-3">
             {expiringItems.length === 0 ? (
-              <p className="text-xs text-text-secondary font-medium">No active products are expiring in the next 30 days.</p>
+              <p className="text-xs text-brand-muted font-medium">No active products are expiring in the next 30 days.</p>
             ) : (
               expiringItems.map(item => {
                 const daysLeft = Math.ceil((new Date(item.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
                 return (
-                  <div key={item._id} className="flex justify-between items-center bg-white/40 border border-glass-border p-3 rounded-xl">
+                  <div key={item._id} className="flex justify-between items-center bg-brand-bg/80 border border-brand-border p-3.5 rounded-2xl">
                     <div>
-                      <h4 className="text-xs font-bold text-text-primary">{item.name}</h4>
-                      <p className="text-[9px] text-text-secondary mt-0.5">Expiry Date: {new Date(item.expiryDate).toLocaleDateString()}</p>
+                      <h4 className="text-xs font-bold text-brand-dark">{item.name}</h4>
+                      <p className="text-[10px] text-brand-muted mt-0.5">Expiry Date: {new Date(item.expiryDate).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
-                      <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
                         daysLeft <= 7 
-                          ? 'bg-red-500/10 text-accent-danger border-red-500/20 animate-pulse' 
-                          : 'bg-amber-500/10 text-accent-warning border-amber-500/20'
+                          ? 'bg-brand-danger/15 text-brand-danger border-brand-danger/30 animate-pulse' 
+                          : 'bg-brand-warning/15 text-brand-dark border-brand-warning/30'
                       }`}>
                         {daysLeft} days left
                       </span>

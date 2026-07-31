@@ -7,7 +7,9 @@ import {
   Printer, 
   ArrowLeftRight, 
   Calendar, 
-  X 
+  X,
+  Receipt,
+  FileText
 } from 'lucide-react';
 
 const History = () => {
@@ -60,55 +62,60 @@ const History = () => {
   };
 
   return (
-    <div className="space-y-6 select-none">
-      {/* Date Filter Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 glass-card p-4 rounded-2xl border border-glass-border">
+    <div className="space-y-6 select-none pb-6">
+      {/* Date Filter & Search Controls Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 glass-card p-4 rounded-[20px] border border-brand-border">
         <div className="flex flex-wrap items-center gap-3 w-full">
-          <div className="relative flex-1 min-w-[150px] flex items-center gap-2 text-xs font-semibold text-text-secondary">
-            <Calendar size={14} />
+          <div className="relative flex-1 min-w-[200px] flex items-center gap-2 text-xs font-bold text-brand-dark">
+            <Calendar size={16} className="text-brand-primary" />
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="px-2 py-1.5 rounded-lg border border-glass-border bg-white/40 focus:bg-white outline-none"
+              className="px-3 py-2 rounded-xl border border-brand-border bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary"
             />
-            <span>to</span>
+            <span className="text-brand-muted font-normal">to</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="px-2 py-1.5 rounded-lg border border-glass-border bg-white/40 focus:bg-white outline-none"
+              className="px-3 py-2 rounded-xl border border-brand-border bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary"
             />
           </div>
 
           <div className="relative max-w-xs flex-1 min-w-[200px]">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-text-secondary">
-              <Search size={14} />
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-brand-muted">
+              <Search size={16} />
             </span>
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Search by customer phone..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-glass-border bg-white/40 focus:bg-white outline-none text-xs font-semibold"
+              placeholder="Filter by customer phone..."
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-brand-border bg-white text-xs font-semibold text-brand-dark outline-none focus:border-brand-primary shadow-sm"
             />
           </div>
         </div>
       </div>
 
-      {/* History Table */}
-      <div className="glass-card p-5 rounded-3xl border border-glass-border overflow-hidden">
+      {/* History Table Container */}
+      <div className="glass-card p-5 rounded-[20px] border border-brand-border overflow-hidden">
         {loading ? (
-          <div className="py-20 flex justify-center">
-            <div className="h-8 w-8 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="py-20 flex flex-col items-center justify-center gap-3">
+            <div className="h-9 w-9 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs font-semibold text-brand-muted">Loading Checkout Invoices...</p>
           </div>
         ) : bills.length === 0 ? (
-          <p className="py-20 text-center text-text-secondary/50 font-medium text-sm">No supermarket transactions found.</p>
+          <div className="py-20 text-center space-y-2">
+            <Receipt size={36} className="mx-auto text-brand-muted opacity-40" />
+            <p className="text-sm font-bold text-brand-dark">No supermarket invoices found.</p>
+            <p className="text-xs text-brand-muted">Try adjusting date range or phone number filter.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-glass-border text-xs font-bold text-text-secondary uppercase tracking-wider">
+                <tr className="border-b border-brand-border text-[11px] font-bold text-brand-muted uppercase tracking-wider">
                   <th className="pb-3">Bill Number</th>
                   <th className="pb-3">Cashier</th>
                   <th className="pb-3">Customer Phone</th>
@@ -120,32 +127,34 @@ const History = () => {
                   <th className="pb-3 text-center w-28">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-glass-border text-xs font-medium text-text-secondary">
+              <tbody className="divide-y divide-brand-border/60 text-xs font-medium text-brand-muted">
                 {bills.map((b) => (
-                  <tr key={b._id} className="hover:bg-white/10 transition-colors">
-                    <td className="py-3.5 text-text-primary font-mono font-semibold">{b.billNumber}</td>
-                    <td className="py-3.5">{b.cashierName}</td>
+                  <tr key={b._id} className="hover:bg-brand-primary/5 transition-colors">
+                    <td className="py-3.5 text-brand-dark font-mono font-bold">{b.billNumber}</td>
+                    <td className="py-3.5 text-brand-dark">{b.cashierName}</td>
                     <td className="py-3.5 font-mono">{b.customerPhone || 'Walk-in'}</td>
-                    <td className="py-3.5 text-center">{b.items.reduce((sum, item) => sum + item.quantity, 0)} items</td>
+                    <td className="py-3.5 text-center font-semibold">{b.items.reduce((sum, item) => sum + item.quantity, 0)} items</td>
                     <td className="py-3.5">
-                      <span className="bg-white/50 border border-glass-border px-2 py-0.5 rounded-lg font-semibold">{b.paymentMethod}</span>
+                      <span className="bg-brand-bg border border-brand-border px-2.5 py-1 rounded-lg font-bold text-brand-dark text-[11px]">
+                        {b.paymentMethod}
+                      </span>
                     </td>
                     <td className="py-3.5">{new Date(b.createdAt).toLocaleDateString()}</td>
                     <td className="py-3.5 text-center">
-                      <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
+                      <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
                         b.status === 'Paid' 
-                          ? 'bg-green-500/10 text-accent-success border border-green-500/20' 
-                          : 'bg-red-500/10 text-accent-danger border border-red-500/20'
+                          ? 'bg-brand-success/15 text-brand-success' 
+                          : 'bg-brand-danger/15 text-brand-danger'
                       }`}>
                         {b.status}
                       </span>
                     </td>
-                    <td className="py-3.5 text-right text-text-primary font-extrabold">₹{b.grandTotal.toFixed(2)}</td>
+                    <td className="py-3.5 text-right text-brand-dark font-extrabold text-sm">₹{b.grandTotal.toFixed(2)}</td>
                     <td className="py-3.5 text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => setSelectedBill(b)}
-                          className="p-1 hover:bg-glass-hover text-text-secondary hover:text-accent-primary rounded-lg transition"
+                          className="p-1.5 bg-brand-bg hover:bg-brand-primary/10 text-brand-dark hover:text-brand-primary rounded-xl transition border border-brand-border"
                           title="View Invoice Details"
                         >
                           <Eye size={14} />
@@ -153,7 +162,7 @@ const History = () => {
                         {b.status === 'Paid' && (
                           <button
                             onClick={() => handleRefund(b._id, b.billNumber)}
-                            className="p-1 hover:bg-glass-hover text-text-secondary hover:text-accent-danger rounded-lg transition"
+                            className="p-1.5 bg-brand-bg hover:bg-brand-danger/10 text-brand-dark hover:text-brand-danger rounded-xl transition border border-brand-border"
                             title="Process Refund/Exchange"
                           >
                             <ArrowLeftRight size={14} />
@@ -171,17 +180,19 @@ const History = () => {
 
       {/* Bill View / Reprint Modal Popup */}
       {selectedBill && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-sm z-50">
-          <div className="glass-panel p-6 rounded-3xl w-full max-w-sm border border-glass-border shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b border-glass-border pb-3">
-              <h3 className="font-heading font-bold text-sm text-text-primary">Invoice Details</h3>
-              <button onClick={() => setSelectedBill(null)} className="text-text-secondary hover:text-text-primary">
+        <div className="fixed inset-0 flex items-center justify-center bg-brand-dark/40 backdrop-blur-md z-50 p-4">
+          <div className="glass-panel p-6 rounded-[20px] w-full max-w-sm border border-brand-border shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-brand-border pb-3">
+              <h3 className="font-bold text-sm text-brand-dark flex items-center gap-2">
+                <FileText size={16} className="text-brand-primary" /> Supermarket Invoice Details
+              </h3>
+              <button onClick={() => setSelectedBill(null)} className="text-brand-muted hover:text-brand-dark p-1 rounded-xl">
                 <X size={18} />
               </button>
             </div>
 
             {/* Simulated Receipt paper layout */}
-            <div ref={printRef} className="bg-white p-4 rounded-2xl border border-glass-border text-black font-mono text-[11px] leading-tight space-y-4">
+            <div ref={printRef} className="bg-white p-4 rounded-2xl border border-brand-border text-black font-mono text-[11px] leading-tight space-y-4 shadow-sm">
               <div className="text-center space-y-0.5">
                 <h4 className="font-bold text-xs uppercase">Apex Supermarket</h4>
                 <p>123 Commercial Plaza, Tech City</p>
@@ -199,9 +210,9 @@ const History = () => {
               <table className="w-full text-[10px]">
                 <thead>
                   <tr className="border-b border-black border-dashed">
-                    <th className="text-left pb-1">Item</th>
-                    <th className="text-center pb-1">Qty</th>
-                    <th className="text-right pb-1">Sub</th>
+                    <th className="text-left pb-1 font-bold">Item</th>
+                    <th className="text-center pb-1 font-bold">Qty</th>
+                    <th className="text-right pb-1 font-bold">Sub</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -245,10 +256,10 @@ const History = () => {
 
             <button
               onClick={handlePrint}
-              className="w-full bg-accent-primary hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition"
+              className="w-full glass-btn-primary py-2.5 text-xs font-bold flex items-center justify-center gap-2"
             >
               <Printer size={16} />
-              Print Duplicate Invoice
+              Print Duplicate POS Receipt
             </button>
           </div>
         </div>
